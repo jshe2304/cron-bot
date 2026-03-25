@@ -1,0 +1,52 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║           cron-bot cluster environment report               ║
+╚══════════════════════════════════════════════════════════════╝
+
+===== GENERAL ======
+  Hostname: beagle3-tbd1.rcc.local
+  Date: 2026-03-25 19:08 UTC
+  OS: Linux 4.18.0-305.57.1.el8_4.x86_64 x86_64
+  User: jshe
+
+===== SCHEDULER ======
+  Type: none detected (no sinfo or qstat)
+
+===== LOGIN NODE LIMITS ======
+  ulimit -t (CPU seconds): unlimited
+  ulimit -v (virtual mem KB): unlimited
+  ulimit -u (max procs): 1028125
+  ulimit -n (open files): 1024
+
+===== PERSISTENCE (login node) ======
+  systemd --user: available
+  user crontab: available
+  tmux: available
+  screen: available
+  nohup: available
+
+===== NETWORKING (login node) ======
+  http_proxy: not set
+  https_proxy: not set
+  no_proxy: not set
+  Outbound HTTPS (httpbin.org): reachable (anthropic blocked or unreachable)
+  Outbound HTTPS (slack.com): reachable
+  DNS resolution: working
+
+===== NETWORKING (compute node — async) ======
+  Compute probe: skipped (no scheduler)
+
+===== SOFTWARE ======
+  python3: Python 3.9.19
+  python: Python 3.9.19
+  pip: pip 24.0 from /software/python-anaconda-2022.05-el8-x86_64/lib/python3.9/site-packages/pip (python 3.9)
+  pip3: pip 24.0 from /software/python-anaconda-2022.05-el8-x86_64/lib/python3.9/site-packages/pip (python 3.9)
+
+===== FILESYSTEM ======
+  /home/jshe: exists, 1.2P free, type=gpfs
+  /scratch: exists, 294G free, type=xfs
+  /tmp: exists, 186G free, type=xfs
+
+
+NOTE: The compute node network probe runs asynchronously.
+Check its output file after the job completes.

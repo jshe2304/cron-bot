@@ -110,11 +110,13 @@ item "http_proxy" "${http_proxy:-not set}"
 item "https_proxy" "${https_proxy:-not set}"
 item "no_proxy" "${no_proxy:-not set}"
 
-# Test outbound HTTPS
-if curl -sf --max-time 5 -o /dev/null https://api.anthropic.com 2>/dev/null; then
+# Test outbound HTTPS — use --head and accept any HTTP response (even 4xx)
+# as proof of connectivity. A bare GET to api.anthropic.com returns 4xx
+# without auth, so -sf would false-negative.
+if curl --head --max-time 5 -o /dev/null -w '' https://api.anthropic.com 2>/dev/null; then
     item "Outbound HTTPS (api.anthropic.com)" "reachable"
-elif curl -sf --max-time 5 -o /dev/null https://httpbin.org/get 2>/dev/null; then
-    item "Outbound HTTPS (httpbin.org)" "reachable (anthropic blocked or unreachable)"
+elif curl --head --max-time 5 -o /dev/null -w '' https://httpbin.org/get 2>/dev/null; then
+    item "Outbound HTTPS (httpbin.org)" "reachable (anthropic unreachable)"
 else
     item "Outbound HTTPS" "BLOCKED or no curl"
 fi
@@ -145,7 +147,7 @@ echo "Hostname: $(hostname)"
 echo "http_proxy: ${http_proxy:-not set}"
 echo "https_proxy: ${https_proxy:-not set}"
 for url in https://api.anthropic.com https://slack.com https://httpbin.org/get; do
-    if curl -sf --max-time 10 -o /dev/null "$url" 2>/dev/null; then
+    if curl --head --max-time 10 -o /dev/null -w '' "$url" 2>/dev/null; then
         echo "$url: REACHABLE"
     else
         echo "$url: BLOCKED"

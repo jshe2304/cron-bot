@@ -1,0 +1,23 @@
+{
+  "name": "cron-bot",
+  "version": "0.0.1",
+  "description": "Autonomous run supervisor for compute jobs on HPC clusters",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "eslint": "^9",
+    "tsx": "^4",
+    "typescript": "^5.7"
+  }
+}

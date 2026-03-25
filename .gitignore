@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+*.js.map
+*.d.ts
+!src/**/*.d.ts
+
+.env
+.env.*
+
+*.log
+*.tsbuildinfo

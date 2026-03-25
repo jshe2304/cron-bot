@@ -1,0 +1,53 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║           cron-bot cluster environment report               ║
+╚══════════════════════════════════════════════════════════════╝
+
+===== GENERAL ======
+  Hostname: derecho4.hsn.de.hpc.ucar.edu
+  Date: 2026-03-25 18:53 UTC
+  OS: Linux 6.4.0-150600.23.53-default x86_64
+  User: jshen
+
+===== SCHEDULER ======
+  Type: PBS/Torque
+  Version: pbs_version = 2024.1.4.20251029130308
+  Queues: 
+
+===== LOGIN NODE LIMITS ======
+  ulimit -t (CPU seconds): unlimited
+  ulimit -v (virtual mem KB): unlimited
+  ulimit -u (max procs): 2060802
+  ulimit -n (open files): 16384
+
+===== PERSISTENCE (login node) ======
+  systemd --user: available
+  user crontab: available
+  tmux: available
+  screen: available
+  nohup: available
+
+===== NETWORKING (login node) ======
+  http_proxy: not set
+  https_proxy: not set
+  no_proxy: not set
+  Outbound HTTPS (httpbin.org): reachable (anthropic blocked or unreachable)
+  Outbound HTTPS (slack.com): reachable
+  DNS resolution: working
+
+===== NETWORKING (compute node — async) ======
+  PBS probe job: submission failed
+
+===== SOFTWARE ======
+  python3: Python 3.10.9
+  python: Python 3.10.9
+  pip: pip 25.1 from /glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/pip (python 3.10)
+  pip3: pip 25.1 from /glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/pip (python 3.10)
+
+===== FILESYSTEM ======
+  /glade/u/home/jshen: exists, 44T free, type=gpfs
+  /tmp: exists, 4.0G free, type=xfs
+
+
+NOTE: The compute node network probe runs asynchronously.
+Check its output file after the job completes.

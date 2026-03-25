@@ -3,12 +3,18 @@
 # lightweight monitoring agent. Run on each cluster's login node.
 # Produces a plain-text report to stdout.
 
-set -euo pipefail
+set -uo pipefail
 
 REPORT=""
 section() { REPORT+=$'\n'"===== $1 ======"$'\n'; }
 item()    { REPORT+="  $1: $2"$'\n'; }
 note()    { REPORT+="  ⮑  $1"$'\n'; }
+notes_from_cmd() {
+    # Read command output into REPORT without a subshell
+    while IFS= read -r line; do
+        note "$line"
+    done < <("$@" 2>/dev/null || true)
+}
 
 section "GENERAL"
 item "Hostname" "$(hostname -f 2>/dev/null || hostname)"
@@ -24,9 +30,7 @@ if command -v sinfo &>/dev/null; then
 
     # List partitions with time limits
     item "Partitions" ""
-    sinfo -o "%P %l %a %D" 2>/dev/null | while read -r line; do
-        note "$line"
-    done
+    notes_from_cmd sinfo -o "%P %l %a %D"
 
     # Check for debug/interactive/service partitions
     debug_parts=$(sinfo -o "%P" -h 2>/dev/null | grep -iE 'debug|interactive|service|monitor' || true)
@@ -39,9 +43,7 @@ if command -v sinfo &>/dev/null; then
     # QOS
     if sacctmgr -n list qos format=name%-30 2>/dev/null | head -20 | grep -q .; then
         item "QOS policies" ""
-        sacctmgr -n list qos format=name%-30,priority,maxwall 2>/dev/null | head -20 | while read -r line; do
-            note "$line"
-        done
+        notes_from_cmd sacctmgr -n list qos format=name%-30,priority,maxwall
     fi
 
 elif command -v qstat &>/dev/null; then
@@ -49,12 +51,8 @@ elif command -v qstat &>/dev/null; then
     item "Version" "$(pbsnodes --version 2>/dev/null || qstat --version 2>/dev/null || echo 'unknown')"
 
     # List queues
-    if command -v qstat &>/dev/null; then
-        item "Queues" ""
-        qstat -Q 2>/dev/null | while read -r line; do
-            note "$line"
-        done
-    fi
+    item "Queues" ""
+    notes_from_cmd qstat -Q
 
     debug_queues=$(qstat -Q -f 2>/dev/null | grep -i "Queue:" | grep -iE 'debug|interactive|service|monitor' || true)
     if [[ -n "$debug_queues" ]]; then
@@ -73,7 +71,7 @@ item "ulimit -n (open files)" "$(ulimit -n 2>/dev/null || echo 'N/A')"
 
 # Check cgroup limits
 if [[ -f /proc/self/cgroup ]]; then
-    cg_path=$(grep -oP '(?<=::).*' /proc/self/cgroup 2>/dev/null | head -1)
+    cg_path=$(sed -n 's/^.*:://p' /proc/self/cgroup 2>/dev/null | head -1)
     if [[ -n "$cg_path" ]]; then
         for f in /sys/fs/cgroup"${cg_path}"/memory.max /sys/fs/cgroup"${cg_path}"/cpu.max; do
             if [[ -f "$f" ]]; then
@@ -163,7 +161,7 @@ chmod +x "$probe_script"
 
 if command -v sbatch &>/dev/null; then
     job_id=$(sbatch --job-name=cron-bot-probe --time=00:05:00 --ntasks=1 --mem=256M \
-        --output="$probe_out" --error="$probe_out" "$probe_script" 2>/dev/null | grep -oP '\d+' || true)
+        --output="$probe_out" --error="$probe_out" "$probe_script" 2>/dev/null | sed 's/[^0-9]//g' || true)
     if [[ -n "$job_id" ]]; then
         item "Slurm probe job" "submitted (job $job_id)"
         note "Output will be at: $probe_out"

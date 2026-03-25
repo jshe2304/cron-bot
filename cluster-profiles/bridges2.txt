@@ -1,0 +1,57 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║           cron-bot cluster environment report               ║
+╚══════════════════════════════════════════════════════════════╝
+
+===== GENERAL ======
+  Hostname: br011.ib.bridges2.psc.edu
+  Date: 2026-03-25 18:49 UTC
+  OS: Linux 4.18.0-553.22.1.el8_10.x86_64 x86_64
+  User: jshen6
+
+===== SCHEDULER ======
+  Type: Slurm
+  Version: slurm 22.05.11
+  Partitions: 
+  Candidate low-latency partitions: none found
+  QOS policies: 
+
+===== LOGIN NODE LIMITS ======
+  ulimit -t (CPU seconds): unlimited
+  ulimit -v (virtual mem KB): unlimited
+  ulimit -u (max procs): 1030235
+  ulimit -n (open files): 262144
+
+===== PERSISTENCE (login node) ======
+  systemd --user: available
+  user crontab: available
+  tmux: available
+  screen: available
+  nohup: available
+
+===== NETWORKING (login node) ======
+  http_proxy: not set
+  https_proxy: not set
+  no_proxy: not set
+  Outbound HTTPS (httpbin.org): reachable (anthropic blocked or unreachable)
+  Outbound HTTPS (slack.com): reachable
+  DNS resolution: working
+
+===== NETWORKING (compute node — async) ======
+  Slurm probe job: submitted (job 38199253)
+  ⮑  Output will be at: /tmp/cron-bot-net-probe-1774464597.out
+  ⮑  Check with: cat /tmp/cron-bot-net-probe-1774464597.out  (after job completes)
+
+===== SOFTWARE ======
+  python3: Python 3.10.9
+  python: Python 3.10.9
+  pip: pip 22.3.1 from /jet/home/jshen6/.conda/envs/torch/lib/python3.10/site-packages/pip (python 3.10)
+  pip3: pip 22.3.1 from /jet/home/jshen6/.conda/envs/torch/lib/python3.10/site-packages/pip (python 3.10)
+
+===== FILESYSTEM ======
+  /jet/home/jshen6: exists, 3.5G free, type=lustre
+  /tmp: exists, 251G free, type=ext4
+
+
+NOTE: The compute node network probe runs asynchronously.
+Check its output file after the job completes.

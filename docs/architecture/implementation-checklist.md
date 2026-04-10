@@ -4,11 +4,11 @@ This checklist turns the roadmap into the recommended build order.
 
 ## Phase 1: Core contracts
 
-- [ ] Add explicit policy decision types
-- [ ] Add supervisor interface and wake lifecycle contract
-- [ ] Add memory interfaces for event log, campaign profile, and trajectory store
-- [ ] Add scheduler interfaces for heartbeat and delayed follow-ups
-- [ ] Add serialization tests for core types
+- [x] Add explicit policy decision types
+- [x] Add supervisor interface and wake lifecycle contract
+- [x] Add memory interfaces for event log, campaign profile, and trajectory store
+- [x] Add scheduler interfaces for heartbeat and delayed follow-ups
+- [x] Add serialization tests for core types
 
 ## Phase 2: Memory
 

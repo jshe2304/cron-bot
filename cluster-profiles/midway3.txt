@@ -5,7 +5,7 @@
 
 ===== GENERAL ======
   Hostname: beagle3-tbd1.rcc.local
-  Date: 2026-03-25 19:08 UTC
+  Date: 2026-03-25 19:12 UTC
   OS: Linux 4.18.0-305.57.1.el8_4.x86_64 x86_64
   User: jshe
 
@@ -29,7 +29,7 @@
   http_proxy: not set
   https_proxy: not set
   no_proxy: not set
-  Outbound HTTPS (httpbin.org): reachable (anthropic blocked or unreachable)
+  Outbound HTTPS (api.anthropic.com): reachable
   Outbound HTTPS (slack.com): reachable
   DNS resolution: working
 

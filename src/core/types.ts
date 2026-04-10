@@ -176,6 +176,15 @@ export type WakeDegradedEvent = {
   fallbackMode: ApprovalMode;
 };
 
+export type WakeLifecycleEvent = {
+  type: "wake_lifecycle";
+  createdAt: string;
+  wakeId: string;
+  phase: "start" | "end";
+  wakeReason: WakeReason;
+  summary?: string;
+};
+
 export type CampaignEvent =
   | ObservationEvent
   | AssessmentEvent
@@ -189,7 +198,8 @@ export type CampaignEvent =
   | JobSubmittedEvent
   | JobResubmittedEvent
   | SummaryPostedEvent
-  | WakeDegradedEvent;
+  | WakeDegradedEvent
+  | WakeLifecycleEvent;
 
 export type InspectLogTailRecord = {
   kind: "inspect_log_tail";
@@ -251,14 +261,116 @@ export type ActionRecord =
   | PostSlackSummaryRecord
   | ToolCallRecord;
 
+export type RiskyActionKind =
+  | "edit_files"
+  | "cancel_job"
+  | "resubmit_job"
+  | "destructive_command";
+
+export type PolicyDecision =
+  | {
+      outcome: "allow";
+      reason: string;
+    }
+  | {
+      outcome: "approval_required";
+      reason: string;
+      approvalScope: RiskyActionKind;
+    }
+  | {
+      outcome: "deny";
+      reason: string;
+      escalationHint?: string;
+    };
+
+export type PolicyInput = {
+  approvalMode: ApprovalMode;
+  action: RiskyActionKind;
+  summary: string;
+};
+
+export interface PolicyEngine {
+  evaluate(input: PolicyInput): PolicyDecision;
+}
+
 export type SupervisorInput = {
   wake: WakeReason;
   campaign: CampaignState;
 };
 
 export type SupervisorDecision = {
-  observations: ObservationEvent[];
+  events: CampaignEvent[];
   actionRecords: ActionRecord[];
   followups: FollowupRecord[];
   summary?: string;
 };
+
+export type SupervisorWakeStart = {
+  wakeId: string;
+  reason: WakeReason;
+  startedAt: string;
+};
+
+export type SupervisorWakeEnd = {
+  wakeId: string;
+  endedAt: string;
+  summary?: string;
+};
+
+export interface Supervisor {
+  run(input: SupervisorInput): Promise<SupervisorDecision>;
+}
+
+export interface EventLogStore {
+  append(events: CampaignEvent[]): Promise<void>;
+  list(campaignId: string, limit?: number): Promise<CampaignEvent[]>;
+}
+
+export interface CampaignProfileStore {
+  load(campaignId: string): Promise<CampaignState | null>;
+  save(state: CampaignState): Promise<void>;
+}
+
+export interface TrajectoryRecord {
+  incidentId: string;
+  inputsConsidered: string[];
+  observations: string[];
+  reasoningSummary: string;
+  commandsRun: string[];
+  diffsApplied: string[];
+  validationResults: string[];
+  approvalOutcomes: string[];
+  schedulerActions: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TrajectoryStore {
+  save(record: TrajectoryRecord): Promise<void>;
+  getByIncidentId(incidentId: string): Promise<TrajectoryRecord | null>;
+}
+
+export interface FollowupStore {
+  listDue(nowIso: string): Promise<FollowupRecord[]>;
+  upsert(record: FollowupRecord): Promise<void>;
+  remove(followupId: string): Promise<void>;
+}
+
+export interface MemoryStore {
+  events: EventLogStore;
+  profile: CampaignProfileStore;
+  followups: FollowupStore;
+  trajectories: TrajectoryStore;
+}
+
+export type SchedulerWake = {
+  wakeId: string;
+  reason: WakeReason;
+  scheduledAt: string;
+};
+
+export interface Scheduler {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  scheduleFollowup(record: FollowupRecord): Promise<void>;
+}

@@ -13,10 +13,10 @@ This checklist turns the roadmap into the recommended build order.
 ## Phase 2: Memory
 
 - [x] Implement append-only event log storage
-- [ ] Implement mutable campaign profile storage
-- [ ] Implement pending follow-up storage
-- [ ] Implement trajectory storage for interventions
-- [ ] Add local tests for load, append, replay, and restart recovery
+- [x] Implement mutable campaign profile storage
+- [x] Implement pending follow-up storage
+- [x] Implement trajectory storage for interventions
+- [x] Add local tests for load, append, replay, and restart recovery
 
 ## Phase 3: Scheduler
 

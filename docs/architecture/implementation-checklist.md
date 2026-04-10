@@ -12,7 +12,7 @@ This checklist turns the roadmap into the recommended build order.
 
 ## Phase 2: Memory
 
-- [ ] Implement append-only event log storage
+- [x] Implement append-only event log storage
 - [ ] Implement mutable campaign profile storage
 - [ ] Implement pending follow-up storage
 - [ ] Implement trajectory storage for interventions

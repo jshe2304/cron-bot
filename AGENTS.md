@@ -10,6 +10,18 @@ This project is a lightweight HPC campaign supervisor built on Pi. It should beh
 - Keep the harness minimal. The code should provide context, memory, execution, and explicit limits. The model should do most of the thinking.
 - Prioritize real productivity for computational scientists and engineers over maximal architectural purity.
 
+Before making architectural or runtime changes, read:
+
+- [`docs/architecture/README.md`](/Users/jshe/Code/cron-bot/docs/architecture/README.md)
+- [`docs/architecture/operating-model.md`](/Users/jshe/Code/cron-bot/docs/architecture/operating-model.md)
+- [`docs/architecture/core-loop.md`](/Users/jshe/Code/cron-bot/docs/architecture/core-loop.md)
+- [`docs/architecture/implementation-roadmap.md`](/Users/jshe/Code/cron-bot/docs/architecture/implementation-roadmap.md)
+- [`docs/architecture/implementation-checklist.md`](/Users/jshe/Code/cron-bot/docs/architecture/implementation-checklist.md)
+
+These files are the current source of truth for how the bot should operate, what boundaries should remain explicit, and how the system should be built and tested.
+
+If a change materially affects the operating model, scheduler/agent split, approval flow, memory model, or testing strategy, update those docs in the same change.
+
 ## Operating Philosophy
 
 - Trust the model to reason about experiment state, logs, failures, and next actions.
@@ -218,6 +230,7 @@ Scheduling should be explicit and robust. Prefer a deterministic heartbeat or cr
 - user message
 - job-state change
 - validation completion
+- wake retry after degraded execution
 
 Do not make long-lived supervision depend primarily on the model invoking a `sleep`-style tool and holding the control loop open. The scheduler should own the clock. The model should own the supervisory judgment on each wake.
 
@@ -233,11 +246,15 @@ The runtime should emit typed events that can be consumed by memory, Slack, appr
 - `validation_result`
 - `approval_requested`
 - `approval_resolved`
+- `clarification_requested`
 - `job_submitted`
 - `job_resubmitted`
 - `summary_posted`
+- `wake_degraded`
 
 This is the preferred spine for internal coordination. It is simpler and more durable than wiring each integration separately.
+
+The event log should be the main audit trail. The campaign profile and intervention trajectories should be treated as derived working views, not competing sources of truth.
 
 ## Design Test
 

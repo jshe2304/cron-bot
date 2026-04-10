@@ -4,6 +4,18 @@ Autonomous run supervisor for compute jobs on HPC clusters. Monitors jobs, halts
 
 **Status:** Early brainstorming / pre-prototype.
 
+## Read First
+
+Before changing core behavior, read:
+
+- `docs/architecture/README.md`
+- `docs/architecture/operating-model.md`
+- `docs/architecture/core-loop.md`
+- `docs/architecture/implementation-roadmap.md`
+- `docs/architecture/implementation-checklist.md`
+
+These files are the current source of truth for the operating model, the scheduler/agent split, and the intended implementation and testing order.
+
 ## Pi coding agent (key dependency)
 
 Built on [Pi](https://github.com/badlogic/pi-mono) (`@mariozechner/pi-coding-agent`), a minimal extensible agent harness.
@@ -69,9 +81,11 @@ The project is still intentionally lightweight, but a few architectural commitme
 - `validation_result`
 - `approval_requested`
 - `approval_resolved`
+- `clarification_requested`
 - `job_submitted`
 - `job_resubmitted`
 - `summary_posted`
+- `wake_degraded`
 
 Slack, persistence, and later audit/debug views should consume these same events.
 
@@ -110,6 +124,7 @@ Use deterministic scheduling infrastructure for wakeups, retries, and deferred f
 - user message
 - job-state change
 - validation completion
+- wake retry after degraded execution
 
 Avoid making long-lived supervision depend primarily on a model-issued `sleep` tool. That is a fragile way to keep time on a login node resident process.
 
@@ -133,3 +148,7 @@ Memory should store both evolving campaign state and replayable intervention tra
 - validation results
 - approval outcomes
 - scheduler actions taken
+
+Treat the append-only event log as the main audit trail. Campaign profile and intervention trajectories can be maintained as derived working views.
+
+Version one assumes one resident process per campaign. If multi-campaign support is needed later, it should be added as an explicit orchestration layer rather than hidden inside the first process model.

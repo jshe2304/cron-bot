@@ -17,6 +17,10 @@ export type WakeReason =
   | {
       kind: "validation_complete";
       validationRunId: string;
+    }
+  | {
+      kind: "wake_retry";
+      failedWakeId: string;
     };
 
 export type ApprovalMode =
@@ -50,6 +54,12 @@ export type FollowupRecord = {
   contextRef?: string;
 };
 
+export type CampaignViewWindow = {
+  recentIncidentLimit: number;
+  recentSummaryLimit: number;
+  recentObservationLimit?: number;
+};
+
 export type IncidentRecord = {
   id: string;
   summary: string;
@@ -69,6 +79,7 @@ export type CampaignState = {
   campaignId: string;
   goal: string;
   approvalMode: ApprovalMode;
+  viewWindow: CampaignViewWindow;
   activeJobs: JobRecord[];
   pendingFollowups: FollowupRecord[];
   recentIncidents: IncidentRecord[];
@@ -108,6 +119,7 @@ export type RepairAppliedEvent = {
   summary: string;
   createdAt: string;
   changedPaths: string[];
+  commitRef?: string;
 };
 
 export type ValidationResultEvent = {
@@ -116,6 +128,7 @@ export type ValidationResultEvent = {
   createdAt: string;
   status: "passed" | "failed" | "skipped";
   summary: string;
+  reason?: string;
 };
 
 export type ApprovalRequestedEvent = {
@@ -129,6 +142,13 @@ export type ApprovalResolvedEvent = {
   createdAt: string;
   outcome: "approved" | "rejected";
   actionSummary: string;
+};
+
+export type ClarificationRequestedEvent = {
+  type: "clarification_requested";
+  createdAt: string;
+  question: string;
+  blockingReason: string;
 };
 
 export type JobSubmittedEvent = {
@@ -149,6 +169,13 @@ export type SummaryPostedEvent = {
   summaryId: string;
 };
 
+export type WakeDegradedEvent = {
+  type: "wake_degraded";
+  createdAt: string;
+  reason: string;
+  fallbackMode: ApprovalMode;
+};
+
 export type CampaignEvent =
   | ObservationEvent
   | AssessmentEvent
@@ -158,56 +185,71 @@ export type CampaignEvent =
   | ValidationResultEvent
   | ApprovalRequestedEvent
   | ApprovalResolvedEvent
+  | ClarificationRequestedEvent
   | JobSubmittedEvent
   | JobResubmittedEvent
-  | SummaryPostedEvent;
+  | SummaryPostedEvent
+  | WakeDegradedEvent;
 
-export type InspectLogTailAction = {
+export type InspectLogTailRecord = {
   kind: "inspect_log_tail";
+  summary: string;
   logPath: string;
+  jobId?: string;
   lines?: number;
 };
 
-export type QueryJobAction = {
+export type QueryJobRecord = {
   kind: "query_job";
+  summary: string;
   jobId: string;
 };
 
-export type PatchFileAction = {
+export type PatchFileRecord = {
   kind: "patch_file";
   path: string;
   summary: string;
 };
 
-export type RunValidationAction = {
+export type RunValidationRecord = {
   kind: "run_validation";
   summary: string;
 };
 
-export type RequestApprovalAction = {
+export type RequestApprovalRecord = {
   kind: "request_approval";
   summary: string;
 };
 
-export type ResubmitJobAction = {
+export type ResubmitJobRecord = {
   kind: "resubmit_job";
   jobId: string;
   reason: string;
 };
 
-export type PostSlackSummaryAction = {
+export type PostSlackSummaryRecord = {
   kind: "post_slack_summary";
   summary: string;
 };
 
-export type PlannedAction =
-  | InspectLogTailAction
-  | QueryJobAction
-  | PatchFileAction
-  | RunValidationAction
-  | RequestApprovalAction
-  | ResubmitJobAction
-  | PostSlackSummaryAction;
+export type ToolCallRecord = {
+  kind: "pi_tool_call";
+  toolName: string;
+  summary: string;
+  startedAt: string;
+  finishedAt?: string;
+  outcome?: "succeeded" | "failed" | "blocked";
+};
+
+export type ActionRecord =
+  | InspectLogTailRecord
+  | QueryJobRecord
+  | PatchFileRecord
+  | RunValidationRecord
+  | RequestApprovalRecord
+  | ResubmitJobRecord
+  | PostSlackSummaryRecord
+  | ToolCallRecord;
 
 export type SupervisorInput = {
   wake: WakeReason;
@@ -216,7 +258,7 @@ export type SupervisorInput = {
 
 export type SupervisorDecision = {
   observations: ObservationEvent[];
-  actions: PlannedAction[];
+  actionRecords: ActionRecord[];
   followups: FollowupRecord[];
   summary?: string;
 };

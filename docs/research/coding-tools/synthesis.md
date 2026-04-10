@@ -25,6 +25,7 @@ The current plan talks about modules, but not yet about the internal events that
 Change:
 
 - Add typed events for `observation`, `assessment`, `incident`, `repair_proposal`, `repair_applied`, `validation_result`, `approval_requested`, `approval_resolved`, `job_submitted`, `job_resubmitted`, `summary_posted`.
+- Also include `clarification_requested` for ambiguous goals or low-confidence interpretation, and `wake_degraded` for wake failures and degraded operation.
 
 Why:
 

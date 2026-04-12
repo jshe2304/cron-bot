@@ -64,6 +64,34 @@ test("DeterministicScheduler emits heartbeat wakes on interval", async () => {
   assert.equal(secondHeartbeat[0].scheduledAt, "2026-04-10T00:02:00.000Z");
 });
 
+test("DeterministicScheduler catches up missed heartbeat intervals in a single drain", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "cron-bot-scheduler-heartbeat-catchup-"));
+  const followupStore = new FileFollowupStore({
+    campaignId: "campaign-a",
+    rootDir,
+  });
+
+  const scheduler = new DeterministicScheduler({
+    followupStore,
+    heartbeatIntervalMs: 60_000,
+    clock: new FixedClock("2026-04-10T00:00:00.000Z"),
+    idGenerator: new SequentialIds(),
+  });
+
+  await scheduler.start();
+
+  const overdueHeartbeats = await scheduler.drainDueWakes("2026-04-10T00:03:05.000Z");
+  assert.equal(overdueHeartbeats.length, 3);
+  assert.deepEqual(
+    overdueHeartbeats.map((wake) => wake.scheduledAt),
+    ["2026-04-10T00:01:00.000Z", "2026-04-10T00:02:00.000Z", "2026-04-10T00:03:00.000Z"],
+  );
+  assert.deepEqual(
+    overdueHeartbeats.map((wake) => wake.reason.kind),
+    ["heartbeat", "heartbeat", "heartbeat"],
+  );
+});
+
 test("DeterministicScheduler delivers delayed followups and removes them", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "cron-bot-scheduler-followup-"));
   const followupStore = new FileFollowupStore({

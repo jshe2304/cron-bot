@@ -268,3 +268,82 @@ test("system scenario: scheduler + memory + supervisor process heartbeat and del
   assert.equal(lifecycleEvents[0].phase, "start");
   assert.equal(lifecycleEvents[3].phase, "end");
 });
+
+test("SupervisorRuntime records degraded wake events and preserves campaign followups on supervisor failure", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "cron-bot-supervisor-degraded-"));
+  const memory = createMemoryStore(rootDir);
+
+  const initialCampaign = createCampaignState();
+  initialCampaign.pendingFollowups = [
+    {
+      id: "fup-existing",
+      reason: "wait for validation logs",
+      notBefore: "2026-04-10T00:30:00.000Z",
+    },
+  ];
+
+  const runtime = new SupervisorRuntime({
+    campaignId: "campaign-a",
+    memory,
+    initialCampaign,
+    supervisor: new StubSupervisor({
+      decisionFactory: async () => {
+        throw new Error("scheduler query timed out");
+      },
+    }),
+    clock: new SequenceClock([
+      "2026-04-10T00:20:00.000Z",
+      "2026-04-10T00:20:02.000Z",
+      "2026-04-10T00:20:03.000Z",
+    ]),
+  });
+
+  const wake: SchedulerWake = {
+    wakeId: "wake-failure-1",
+    reason: {
+      kind: "wake_retry",
+      failedWakeId: "wake-previous",
+    },
+    scheduledAt: "2026-04-10T00:20:00.000Z",
+  };
+
+  await assert.rejects(runtime.runWake(wake), /scheduler query timed out/);
+
+  const events = await memory.events.list("campaign-a");
+  assert.equal(events.length, 3);
+  assert.deepEqual(events[0], {
+    type: "wake_lifecycle",
+    createdAt: "2026-04-10T00:20:00.000Z",
+    wakeId: "wake-failure-1",
+    phase: "start",
+    wakeReason: {
+      kind: "wake_retry",
+      failedWakeId: "wake-previous",
+    },
+  });
+  assert.deepEqual(events[1], {
+    type: "wake_degraded",
+    createdAt: "2026-04-10T00:20:02.000Z",
+    reason: "scheduler query timed out",
+    fallbackMode: "ask_before_resubmit",
+  });
+  assert.deepEqual(events[2], {
+    type: "wake_lifecycle",
+    createdAt: "2026-04-10T00:20:03.000Z",
+    wakeId: "wake-failure-1",
+    phase: "end",
+    wakeReason: {
+      kind: "wake_retry",
+      failedWakeId: "wake-previous",
+    },
+    summary: "wake failed: scheduler query timed out",
+  });
+
+  const campaign = await memory.profile.load("campaign-a");
+  assert.notEqual(campaign, null);
+  if (campaign === null) {
+    throw new Error("campaign should be present");
+  }
+
+  assert.deepEqual(campaign.pendingFollowups, initialCampaign.pendingFollowups);
+});

@@ -20,11 +20,11 @@ This checklist turns the roadmap into the recommended build order.
 
 ## Phase 3: Scheduler
 
-- [ ] Implement heartbeat wake generation
-- [ ] Implement delayed follow-up enqueue and delivery
-- [ ] Implement degraded wake retry with bounded backoff
-- [ ] Implement restart recovery for pending follow-ups
-- [ ] Add deterministic scheduler tests
+- [x] Implement heartbeat wake generation
+- [x] Implement delayed follow-up enqueue and delivery
+- [x] Implement degraded wake retry with bounded backoff
+- [x] Implement restart recovery for pending follow-ups
+- [x] Add deterministic scheduler tests
 
 ## Phase 4: Supervisor skeleton
 

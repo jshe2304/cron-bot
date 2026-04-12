@@ -90,7 +90,7 @@ export class DeterministicScheduler implements Scheduler {
     const effectiveNowIso = nowIso ?? this.clock.nowIso();
     const wakes: SchedulerWake[] = [];
 
-    if (this.nextHeartbeatAt !== null && this.nextHeartbeatAt <= effectiveNowIso) {
+    while (this.nextHeartbeatAt !== null && this.nextHeartbeatAt <= effectiveNowIso) {
       wakes.push({
         wakeId: this.idGenerator.nextWakeId(),
         reason: {

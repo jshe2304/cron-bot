@@ -28,11 +28,11 @@ This checklist turns the roadmap into the recommended build order.
 
 ## Phase 4: Supervisor skeleton
 
-- [ ] Implement wake start and wake end flow
-- [ ] Load campaign state on wake
-- [ ] Persist event and follow-up output on wake completion
-- [ ] Add a stub supervisor implementation
-- [ ] Add scenario tests for simple wake flows
+- [x] Implement wake start and wake end flow
+- [x] Load campaign state on wake
+- [x] Persist event and follow-up output on wake completion
+- [x] Add a stub supervisor implementation
+- [x] Add scenario tests for simple wake flows
 
 ## Phase 5: Policy
 
